@@ -5,20 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Investment Terminal - Secure Access</title>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; font-family: -apple-system, sans-serif; background-color: #f4f6f9; }
-        iframe { border: none; width: 100%; height: 100%; display: none; } /* Hidden by default */
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: -apple-system, sans-serif; background-color: #f4f6f9; }
         .gate-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background-color: #1e293b; color: white; }
         .gate-box { background: #2f3e46; padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); text-align: center; max-width: 400px; width: 80%; }
         h2 { margin-top: 0; font-size: 22px; color: #f8fafc; }
-        input[type="password"] { width: 100%; padding: 12px; margin: 20px 0; border: 1px solid #475569; border-radius: 6px; background: #1e293b; color: white; font-size: 16px; box-sizing: border-box; text-align: center; }
+        
+        /* Form Container Styling designed to blend with the original aesthetic */
+        .terminal-container { display: none; width: 100%; max-width: 600px; margin: 40px auto; padding: 30px; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); box-sizing: border-box; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-weight: 600; font-size: 14px; color: #334155; margin-bottom: 8px; }
+        
+        input[type="password"], input[type="text"], textarea { 
+            width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 6px; 
+            font-size: 16px; box-sizing: border-box; font-family: inherit;
+        }
+        input[type="password"] { border: 1px solid #475569; background: #1e293b; color: white; text-align: center; margin: 20px 0; }
+        textarea { height: 100px; resize: vertical; }
+        
         button { background-color: #2563eb; color: white; border: none; padding: 12px 20px; font-size: 16px; font-weight: 600; border-radius: 6px; cursor: pointer; width: 100%; }
         button:hover { background-color: #1d4ed8; }
         .error-msg { color: #f87171; font-size: 14px; margin-top: 10px; display: none; }
+        
+        /* Layout for response windows */
+        .output-box { margin-top: 25px; padding: 15px; background: #f8fafc; border-left: 4px solid #2563eb; border-radius: 4px; display: none; white-space: pre-wrap; font-size: 15px; color: #1e293b; }
+        .status-text { font-size: 14px; color: #64748b; margin-top: 10px; display: none; }
     </style>
 </head>
 <body>
 
-    <!-- 1. The Secure Gate Entryway -->
     <div id="passwordGate" class="gate-container">
         <div class="gate-box">
             <h2>🔒 Secure Research Terminal</h2>
@@ -29,23 +43,79 @@
         </div>
     </div>
 
-    <!-- 2. Your Protected Make.com Terminal App -->
-    <iframe id="terminalApp" src="https://hook.eu1.make.com/7doseugkce8fpkhgi7fdorg5rvy26hva"></iframe>
+    <div id="terminalApp" class="terminal-container">
+        <h2 style="color: #1e293b; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 25px;">Crystal-II Dual Engine</h2>
+        
+        <div class="form-group">
+            <label for="ticker">Stock Ticker</label>
+            <input type="text" id="ticker" placeholder="e.g. BE or AAPL">
+        </div>
+
+        <div class="form-group">
+            <label for="query1">First Analysis Query</label>
+            <textarea id="query1" placeholder="Enter your first research parameter..."></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="query2">Second Analysis Query</label>
+            <textarea id="query2" placeholder="Enter your second research parameter..."></textarea>
+        </div>
+
+        <button onclick="submitForm()">Run Dual Process</button>
+        
+        <div id="statusIndicator" class="status-text">🔄 Processing queries simultaneously via parallel chains...</div>
+        
+        <div id="output1" class="output-box"><h3>Report 1 Output:</h3><div id="text1"></div></div>
+        <div id="output2" class="output-box"><h3>Report 2 Output:</h3><div id="text2"></div></div>
+    </div>
 
     <script>
         function checkPassword() {
             const entered = document.getElementById('passkey').value;
-            // 🛑 CHANGE 'YourSecretPassword123' to whatever password you want!
             const masterPassword = "1947"; 
 
             if (entered === masterPassword) {
-                // Correct password: Hide the gate and reveal the dashboard
                 document.getElementById('passwordGate').style.display = 'none';
-                document.getElementById('terminalApp').style.display = 'block';
+                document.getElementById('terminalApp').style.display = 'block'; // Reveals the custom form
             } else {
-                // Wrong password: Clear input and show error text
                 document.getElementById('passkey').value = '';
                 document.getElementById('error').style.display = 'block';
+            }
+        }
+
+        async function submitForm() {
+            const tickerValue = document.getElementById('ticker').value;
+            const query1Value = document.getElementById('query1').value;
+            const query2Value = document.getElementById('query2').value;
+            
+            const statusIndicator = document.getElementById('statusIndicator');
+            statusIndicator.style.display = 'block';
+
+            // Construct the single unified package
+            const payload = {
+                ticker: tickerValue,
+                query1: query1Value,
+                query2: query2Value
+            };
+
+            try {
+                // REPLACE THE LINK BELOW with your Parent Router Master Webhook URL
+                const response = await fetch('https://hook.eu1.make.com/7doseugkce8fpkhgi7fdorg5rvy26hva', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                statusIndicator.innerText = "✅ Request sent to pipeline successfully!";
+                
+                // If you set up your child scenarios to return text straight back to the browser, 
+                // you will display them using the blocks below.
+                
+            } catch (error) {
+                statusIndicator.innerText = "❌ Network connection error occurred.";
+                console.error(error);
             }
         }
     </script>
